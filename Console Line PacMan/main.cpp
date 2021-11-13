@@ -64,7 +64,11 @@ void FillGrid()
 	rawGrid[50][5] = MazeTiles::DOT;
 	rawGrid[10][20] = MazeTiles::DOT;
 	rawGrid[30][20] = MazeTiles::DOT;
-
+	for (int x = 0; x < 23; x++)
+	{
+		rawGrid[50 + x][0] = MazeTiles::EMPTY;
+		rawGrid[50 + x][28] = MazeTiles::EMPTY;
+	}
 }
 
 int ReturnInput() { return (int)_getch(); }
