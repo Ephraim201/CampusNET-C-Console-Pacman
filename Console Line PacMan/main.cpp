@@ -49,7 +49,7 @@ enum MazeTiles
 
 MazeTiles rawGrid[SCREEN_WIDTH][SCREEN_HEIGHT];
 
-int xPos, yPos;
+int xPos, yPos, collectedDots;
 
 bool isRunning = true;
 
@@ -58,7 +58,12 @@ void UpdateDisplay();
 void FillGrid()
 {
 
-	for (int y = 0; y < SCREEN_HEIGHT; y++) { for (int x = 0; x < SCREEN_WIDTH; x++) { rawGrid[x][y] = (((y == 0 || y == (SCREEN_HEIGHT - 1) || x < 2 || x >(SCREEN_WIDTH - 3)) && (y < 12 || y > 23)) ? MazeTiles::WALL : MazeTiles::EMPTY); } }
+	for (int y = 0; y < SCREEN_HEIGHT; y++) { for (int x = 0; x < SCREEN_WIDTH; x++) { rawGrid[x][y] = (((y == 0 || y == (SCREEN_HEIGHT - 1) || x < 2 || x >(SCREEN_WIDTH - 3)) && (y < 10 || y > 19)) ? MazeTiles::WALL : MazeTiles::EMPTY); } }
+
+	rawGrid[15][5] = MazeTiles::DOT;
+	rawGrid[50][5] = MazeTiles::DOT;
+	rawGrid[10][20] = MazeTiles::DOT;
+	rawGrid[30][20] = MazeTiles::DOT;
 
 }
 
@@ -81,9 +86,9 @@ void MovePlayer()
 	{
 
 		// Up
-	case 119:
-	case 72:
-	case 87:
+		case 119:
+		case 72:
+		case 87:
 
 		yPosNew--;
 
@@ -94,9 +99,9 @@ void MovePlayer()
 		break;
 
 		// Down
-	case 115:
-	case 80:
-	case 83:
+		case 115:
+		case 80:
+		case 83:
 
 		yPosNew++;
 
@@ -107,9 +112,9 @@ void MovePlayer()
 		break;
 
 		// Left
-	case 97:
-	case 75:
-	case 65:
+		case 97:
+		case 75:
+		case 65:
 
 		xPosNew--;
 
@@ -120,9 +125,9 @@ void MovePlayer()
 		break;
 
 		// Right
-	case 100:
-	case 77:
-	case 68:
+		case 100:
+		case 77:
+		case 68:
 
 		xPosNew++;
 
@@ -133,9 +138,9 @@ void MovePlayer()
 		break;
 
 		// Quit
-	case 27:
-	case 113:
-	case 81:
+		case 27:
+		case 113:
+		case 81:
 
 		isRunning = false;
 
@@ -151,35 +156,31 @@ void MovePlayer()
 		switch (rawGrid[xPosNew][yPosNew])
 		{
 
-		case MazeTiles::EMPTY:
+			case MazeTiles::EMPTY:
 
-			MovedPlayer = true;
+				MovedPlayer = true;
 
-			break;
+				break;
 
-		case MazeTiles::DOT:
+			case MazeTiles::DOT:
 
-			rawGrid[xPosNew][yPosNew] = MazeTiles::EMPTY;
+				collectedDots++;
 
-			MovedPlayer = true;
+				rawGrid[xPosNew][yPosNew] = MazeTiles::EMPTY;
 
-			break;
+				MovedPlayer = true;
 
-		case MazeTiles::KEY:
+				break;
 
-			rawGrid[xPosNew][yPosNew] = MazeTiles::EMPTY;
+			case MazeTiles::KEY:
 
-			for (int y = 0; y < SCREEN_HEIGHT; y++)
-			{
-				for (int x = 0; x < SCREEN_WIDTH; x++)
-				{
-					if (rawGrid[x][y] = MazeTiles::LOCK) { rawGrid[x][y] = MazeTiles::EMPTY; }
-				}
-			}
+				rawGrid[xPosNew][yPosNew] = MazeTiles::EMPTY;
 
-			MovedPlayer = true;
+				for (int y = 0; y < SCREEN_HEIGHT; y++) { for (int x = 0; x < SCREEN_WIDTH; x++) { if (rawGrid[x][y] = MazeTiles::LOCK) { rawGrid[x][y] = MazeTiles::EMPTY; } } }
 
-			break;
+				MovedPlayer = true;
+
+				break;
 
 		}
 
@@ -190,9 +191,7 @@ void MovePlayer()
 
 			yPos = yPosNew;
 
-			UpdateDisplay();
-
-			cout << xPos << " : x		y : " << yPos;
+			UpdateDisplay();			
 
 		}
 
@@ -206,13 +205,13 @@ string ReturnCharColor(MazeTiles TileType)
 	switch (TileType)
 	{
 
-	case MazeTiles::EMPTY: return RESET;
+		case MazeTiles::EMPTY: return RESET;
 
-	case MazeTiles::WALL: return BLUE;
+		case MazeTiles::WALL: return BLUE;
 
-	case MazeTiles::DOT: return BOLDYELLOW;
+		case MazeTiles::DOT: return BOLDYELLOW;
 
-	case MazeTiles::KEY: return GREEN;
+		case MazeTiles::KEY: return GREEN;
 
 	}
 
@@ -226,13 +225,13 @@ char ReturnMazeTileChar(MazeTiles TileType)
 	switch (TileType)
 	{
 
-	case MazeTiles::EMPTY: return ' ';
+		case MazeTiles::EMPTY: return ' ';
 
-	case MazeTiles::WALL: return 219;
+		case MazeTiles::WALL: return 219;
 
-	case MazeTiles::DOT: return '·';
+		case MazeTiles::DOT: return 15;
 
-	case MazeTiles::KEY: return 4;
+		case MazeTiles::KEY: return 4;
 
 	}
 
@@ -251,6 +250,7 @@ void UpdateDisplay()
 		for (int x = 0; x < SCREEN_WIDTH; x++)
 		{
 
+			// Print Player
 			if ((x == xPos) && (y == yPos))
 			{
 
@@ -258,6 +258,7 @@ void UpdateDisplay()
 
 			}
 
+			// Print Tile
 			else
 			{
 
@@ -265,13 +266,17 @@ void UpdateDisplay()
 
 			}
 
+			// Reset Color
 			cout << RESET;
 
 		}
 
+		// Print New Line (Row End)
 		cout << "\n";
 
 	}
+
+	cout << "Collected '" << ReturnCharColor(MazeTiles::DOT) << ReturnMazeTileChar(MazeTiles::DOT) << WHITE << "': " << collectedDots;
 
 }
 
@@ -282,20 +287,14 @@ int main()
 
 	yPos = 15;
 
+	collectedDots = 0;
+
 	FillGrid();
 
 	UpdateDisplay();
 
-	while (isRunning)
-	{
+	while (isRunning) { MovePlayer(); }
 
-		MovePlayer();
-
-	}
-
-	for (int i = 0; i < 256; i++)
-	{
-		std::cout << i << ". " << (char)i << std::endl;
-	}
+	// for (int i = 0; i < 256; i++) { std::cout << i << ". " << (char)i << std::endl; }
 
 }
